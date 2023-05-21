@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script>
+    var weekday = new Array(7);
+    weekday[0] = "일";
+    weekday[1] = "월";
+    weekday[2] = "화";
+    weekday[3] = "수";
+    weekday[4] = "목";
+    weekday[5] = "금";
+    weekday[6] = "토";
+
+    $(document).ready(function(){
+      
+
+      getDayInfo();
+      dPick();
+    });
+
+
+    function getDayInfo(){
+      var date = new Date();
+      var year = date.getFullYear();
+      var month = date.getMonth()+1;
+      var day = date.getDate();
+      var yoil = weekday[date.getDay()];
+
+      var dDay = new Date(2023,4,19);
+      var diffDay = Math.floor((date.getTime()-dDay.getTime()) / (1000*60*60*24))+1186;
+      // 2023년 5월 19일 금요일 스터디 1186일차
+      
+      var todayInfo = year+"년 "+month+"월 "+day+"일 "+yoil+"요일 스터디 "+diffDay+"일차";
+      $("#todayInfo").html(todayInfo);
+    }
+
+    function onTrans(){
+      var startDt = $("#startDate").val();
+      var dt = startDt.split("-");
+      var year = dt[0];
+      var month = Number(dt[1])-1;
+      var month2 = Number(dt[1]);
+
+      if(startDt == null || startDt == ""){
+        swal("날짜를 선택해 주세요.");
+        return false;
+      }
+
+      var edtTrans = new Date(year,month2,0);
+      var sdtTrans = new Date(year,month,1);
+      var diffDay = Math.floor((edtTrans.getTime()-sdtTrans.getTime()) / (1000*60*60*24))+1;
+
+      var dDay = new Date(2023,4,19);
+      var sdtMonth = sdtTrans.getMonth();
+      var sdtMonth2 = sdtTrans.getMonth()+1;
+      var templateInfo = "";
+
+      for (var i = 1; i <=diffDay; i++) {
+        var targetDt = new Date(year,sdtMonth,i);
+        var yoil = weekday[targetDt.getDay()];
+        var cnt = Math.floor((targetDt.getTime()-dDay.getTime()) / (1000*60*60*24))+1186;
+
+        templateInfo += setTemplt(year, sdtMonth2, i, yoil, cnt);
+      };
+
+      $("#afterTempl").val(templateInfo);
+    }
+
+    function setTemplt(year, month, day, yoil, cnt){
+      var cont1 = $("#cont1").val();
+      var cont2 = $("#cont2").val();
+      var cont3 = $("#cont3").val();
+      var cont4 = $("#cont4").val();
+      var cont5 = $("#cont5").val();
+      var cont6 = $("#cont6").val();
+      var cont7 = $("#cont7").val();
+
+      var temp = "";
+      temp += year+"년 "+month+"월 "+day+"일 "+yoil+"요일 스터디 "+cnt+"일차\n";
+      temp += "댓글로 사진과 함께 인증해주세요.\n\n";
+      temp += "김예희: "+cont1+"\n";
+      temp += "나유리: "+cont2+"\n";
+      temp += "손찬호: "+cont3+"\n";
+      temp += "신기화: "+cont4+"\n";
+      temp += "최소정: "+cont5+"\n";
+      temp += "허정: "+cont6+"\n";
+      temp += "휴식: "+cont7+"\n\n\n";
+
+      return temp;
+    }
+
+    function dPick(){
+      $("#startDate").datepicker({ 
+        showOn: 'both',
+        buttonText: "달력",
+        currentText: "이번달",
+        dateFormat: 'yy-mm',
+        changeMonth: true,
+        changeYear: true,
+        dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+        dayNamesMin: ['일','월','화','수','목','금','토'],
+        monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+        monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+        yearRange: 'c-99:c+99',
+        showOtherMonths: true,
+        selectOtherMonths: true,
+        showButtonPanel: true,
+        onClose: function(dateText, inst) {  
+              var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val(); 
+              var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val(); 
+              $(this).datepicker('setDate', new Date(year, month, 1));
+              $(".ui-datepicker-calendar").css("display","none");
+          }
+      });
+
+      $("#startDate").focus(function () {
+        $(".ui-datepicker-calendar").css("display","none");
+        $("#ui-datepicker-div").position({
+            my: "center top",
+            at: "center bottom",
+            of: $(this)
+        });
+      });
+    }
+  </script>
+</head>
+<body>
+  <div id="main_contents">
+    <table>
+      <colgroup>
+        <col style="width:250px;">
+        <col style="width:250px;">
+        <col style="width:500px;">
+      </colgroup>
+      <tr>
+        <th colspan="2">
+          오늘은 <span id="todayInfo"></span>입니다.
+        </th>
+      </tr>
+      <tr>
+        <td colspan="2">
+          변환하려는 달 선택 : <input type="text" id="startDate" style="width:80px;"></input>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;padding-top: 20px;">
+          <button id="transButton" onclick="onTrans();">변환하기</button>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="1" style="vertical-align: top;padding-top: 20px;">
+          예희 : <input type="text" id="cont1" style="width:120px;"></input><br/>
+          유리 : <input type="text" id="cont2" style="width:120px;"></input><br/>
+          찬호 : <input type="text" id="cont3" style="width:120px;"></input><br/>
+          기화 : <input type="text" id="cont4" style="width:120px;"></input><br/>
+          소정 : <input type="text" id="cont5" style="width:120px;"></input><br/>
+          정　 : <input type="text" id="cont6" style="width:120px;"></input><br/>
+          휴식 : <input type="text" id="cont7" style="width:120px;"></input><br/>
+        </td>
+        <td colspan="1" style="vertical-align: top;padding-top: 20px;">
+          <textarea id="afterTempl" style="width:550px; height:550px;"></textarea>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
